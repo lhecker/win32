@@ -44,6 +44,7 @@ Application manifests have the following elements and attributes.
 |                                                                             | **threadingModel**        | Yes      |
 | [**activeCodePage**](#activeCodePage)                                       |                           | No       |
 | [**autoElevate**](#autoElevate)                                             |                           | No       |
+| [**consoleAllocationPolicy**](#consoleAllocationPolicy)                     |                           | No       |
 | [**disableTheming**](#disableTheming)                                       |                           | No       |
 | [**disableWindowFiltering**](#disableWindowFiltering)                       |                           | No       |
 | [**dpiAware**](#dpiAware)                                                   |                           | No       |
@@ -276,6 +277,34 @@ The following example demonstrates how to use this element to force the current 
 
 Specifies whether auto elevate is enabled. **TRUE** indicates that it is enabled. It has no attributes.
 The executable file must be digitally signed by Windows Publisher. For internal use.
+
+<span id="consoleAllocationPolicy"></span><span id="consoleallocationpolicy"></span><span id="CONSOLEALLOCATIONPOLICY"></span>
+
+### consoleAllocationPolicy
+
+> [!NOTE]
+> This feature requires Windows 11 24H2 (build 26100) or later.
+
+Most applications on Windows are either of the **IMAGE_SUBSYSTEM_WINDOWS_GUI** or **IMAGE_SUBSYSTEM_WINDOWS_CUI** type.
+The former is a typical graphical, windowed application, whereas the latter is what's commonly called a console or terminal application.
+When running an application marked as **IMAGE_SUBSYSTEM_WINDOWS_CUI** it'll be allocated a console, unless it's executed inside an existing console session.
+Additionally, executing such an application inside a shell like CMD or PowerShell will block until the application has finished executing.
+Neither of these are true for **IMAGE_SUBSYSTEM_WINDOWS_GUI** applications.
+It'll neither be allocated a console, nor block execution inside a shell.
+
+Now what if you want to write an application that seems like a graphical application when run from Explorer, but you can also write debug output to the console, if run inside an existing console session?
+To achieve this, build your application as an **IMAGE_SUBSYSTEM_WINDOWS_CUI** one (for instance with **/SUBSYSTEM:CONSOLE** in MSVC) and add the following application manifest:
+
+```xml
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <application>
+    <windowsSettings>
+      <consoleAllocationPolicy xmlns="http://schemas.microsoft.com/SMI/2024/WindowsSettings">detached</consoleAllocationPolicy>
+    </windowsSettings>
+  </application>
+</assembly>
+```
 
 <span id="disableTheming"></span><span id="disabletheming"></span><span id="DISABLETHEMING"></span>
 
